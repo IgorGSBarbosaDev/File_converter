@@ -2,7 +2,8 @@ import os
 import pandas as pd
 from docx import Document
 from PyPDF2 import PdfReader
-from tkinter import Tk, filedialog, messagebox
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
 
 def convert_pdf_to_docx(pdf_file, docx_file):
     reader = PdfReader(pdf_file)
@@ -12,7 +13,6 @@ def convert_pdf_to_docx(pdf_file, docx_file):
     doc.save(docx_file)
 
 def convert_docx_to_pdf(docx_file, pdf_file):
-    # Para converter DOCX para PDF, você pode usar um software externo como o LibreOffice
     os.system(f'libreoffice --headless --convert-to pdf "{docx_file}" --outdir "{os.path.dirname(pdf_file)}"')
 
 def convert_docx_to_txt(docx_file, txt_file):
@@ -36,61 +36,59 @@ def convert_csv_to_xls(csv_file, xls_file):
     df = pd.read_csv(csv_file)
     df.to_excel(xls_file, index=False)
 
-def main():
-    Tk().withdraw()  # Oculta a janela principal do Tkinter
-    while True:
-        print("Conversor de Arquivos")
-        print("1. PDF para DOCX")
-        print("2. DOCX para PDF")
-        print("3. DOCX para TXT")
-        print("4. TXT para DOCX")
-        print("5. XLS para CSV")
-        print("6. CSV para XLS")
-        print("0. Sair")
-        
-        choice = input("Escolha uma opção: ")
-        
-        if choice == '0':
-            break
-        
-        file_path = filedialog.askopenfilename(title="Selecione o arquivo")
-        
-        if not file_path:
-            messagebox.showerror("Erro", "Nenhum arquivo selecionado.")
-            continue
-        
-        if choice == '1':
-            output_file = filedialog.asksaveasfilename(defaultextension=".docx", title="Salvar como DOCX")
-            convert_pdf_to_docx(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        elif choice == '2':
-            output_file = filedialog.asksaveasfilename(defaultextension=".pdf", title="Salvar como PDF")
-            convert_docx_to_pdf(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        elif choice == '3':
-            output_file = filedialog.asksaveasfilename(defaultextension=".txt", title="Salvar como TXT")
-            convert_docx_to_txt(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        elif choice == '4':
-            output_file = filedialog.asksaveasfilename(defaultextension=".docx", title="Salvar como DOCX")
-            convert_txt_to_docx(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        elif choice == '5':
-            output_file = filedialog.asksaveasfilename(defaultextension=".csv", title="Salvar como CSV")
-            convert_xls_to_csv(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        elif choice == '6':
-            output_file = filedialog.asksaveasfilename(defaultextension=".xls", title="Salvar como XLS")
-            convert_csv_to_xls(file_path, output_file)
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
-        
-        else:
-            messagebox.showerror("Erro", "Opção inválida.")
+def perform_conversion():
+    input_file = input_file_path.get()
+    output_file = output_file_path.get()
+    conversion_type = conversion_type_var.get()
 
-if __name__ == "__main__":
-    main()
+    if not input_file or not output_file:
+        messagebox.showerror("Erro", "Por favor, selecione os arquivos de entrada e saída.")
+        return
+
+    try:
+        if conversion_type == "PDF para DOCX":
+            convert_pdf_to_docx(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de PDF para DOCX com sucesso!")
+        elif conversion_type == "DOCX para PDF":
+            convert_docx_to_pdf(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de DOCX para PDF com sucesso!")
+        elif conversion_type == "DOCX para TXT":
+            convert_docx_to_txt(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de DOCX para TXT com sucesso!")
+        elif conversion_type == "TXT para DOCX":
+            convert_txt_to_docx(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de TXT para DOCX com sucesso!")
+        elif conversion_type == "XLS para CSV":
+            convert_xls_to_csv(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de XLS para CSV com sucesso!")
+        elif conversion_type == "CSV para XLS":
+            convert_csv_to_xls(input_file, output_file)
+            messagebox.showinfo("Sucesso", "Arquivo convertido de CSV para XLS com sucesso!")
+        else:
+            messagebox.showerror("Erro", "Tipo de conversão inválido.")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
+
+def select_input_file():
+    file_path = filedialog.askopenfilename(title="Selecione o arquivo de entrada")
+    input_file_path.set(file_path)
+
+def select_output_file():
+    file_path = filedialog.asksaveasfilename(title="Salvar como", defaultextension=".*")
+    output_file_path.set(file_path)
+
+# Configuração da interface gráfica
+root = tk.Tk()
+root.title("Conversor de Arquivos")
+
+input_file_path = tk.StringVar()
+output_file_path = tk.StringVar()
+conversion_type_var = tk.StringVar()
+
+# Layout
+tk.Label(root, text="Arquivo de Entrada:").grid(row=0, column=0, padx=10, pady=10)
+tk.Entry(root, textvariable=input_file_path, width=50).grid(row=0, column=1, padx=10, pady=10)
+tk.Button(root, text="Selecionar", command=select_input_file).grid(row=0, column=2, padx=10, pady=10)
+
+tk.Label(root, text="Arquivo de Saída:").grid(row=1, column=0, padx=10, pady=10)
+tk.Entry(root, textvariable=output_file_path, width=50).grid(row=1, column=1, padx=10, pady

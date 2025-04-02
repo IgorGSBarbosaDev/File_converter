@@ -91,4 +91,5 @@ tk.Entry(root, textvariable=input_file_path, width=50).grid(row=0, column=1, pad
 tk.Button(root, text="Selecionar", command=select_input_file).grid(row=0, column=2, padx=10, pady=10)
 
 tk.Label(root, text="Arquivo de Saída:").grid(row=1, column=0, padx=10, pady=10)
-tk.Entry(root, textvariable=output_file_path, width=50).grid(row=1, column=1, padx=10, pady
+tk.Entry(root, textvariable=output_file_path, width=50).grid(row=1, column=1, padx=10, pady=10)
+tk.Button(root, text="Selecionar", command=select_output_file).grid(row=1, column=2, padx=10, pady=10)

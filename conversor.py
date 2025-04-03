@@ -120,23 +120,34 @@ def select_input_file():
 root = tk.Tk()
 root.title("Conversor de Arquivos")
 
+# Styling
+root.configure(bg="#f0f0f0")
+style = ttk.Style()
+style.configure("TLabel", background="#f0f0f0", font=("Arial", 10))
+style.configure("TButton", font=("Arial", 10))
+style.configure("TCombobox", font=("Arial", 10))
+
 input_file_path = tk.StringVar()
 conversion_type_var = tk.StringVar()
 
 # Layout
-tk.Label(root, text="Arquivo de Entrada:").grid(row=0, column=0, padx=10, pady=10)
-tk.Entry(root, textvariable=input_file_path, width=50).grid(row=0, column=1, padx=10, pady=10)
-tk.Button(root, text="Selecionar", command=select_input_file).grid(row=0, column=2, padx=10, pady=10)
+header = tk.Label(root, text="Conversor de Arquivos", font=("Arial", 16, "bold"), bg="#f0f0f0")
+header.grid(row=0, column=0, columnspan=3, pady=10)
 
-tk.Label(root, text="Tipo de Conversão:").grid(row=1, column=0, padx=10, pady=10)
+tk.Label(root, text="Arquivo de Entrada:").grid(row=1, column=0, padx=10, pady=10, sticky="e")
+tk.Entry(root, textvariable=input_file_path, width=50).grid(row=1, column=1, padx=10, pady=10)
+tk.Button(root, text="Selecionar", command=select_input_file).grid(row=1, column=2, padx=10, pady=10)
+
+tk.Label(root, text="Tipo de Conversão:").grid(row=2, column=0, padx=10, pady=10, sticky="e")
 conversion_dropdown = ttk.Combobox(root, textvariable=conversion_type_var, state="readonly")
 conversion_dropdown['values'] = list(conversion_functions.keys())
-conversion_dropdown.grid(row=1, column=1, padx=10, pady=10)
+conversion_dropdown.grid(row=2, column=1, padx=10, pady=10)
 
-tk.Button(root, text="Converter", command=perform_conversion_threaded).grid(row=2, column=1, pady=20)
+convert_button = tk.Button(root, text="Converter", command=perform_conversion_threaded, bg="#4CAF50", fg="white", font=("Arial", 10, "bold"))
+convert_button.grid(row=3, column=1, pady=20)
 
 # Progress bar
 progress = ttk.Progressbar(root, orient="horizontal", length=300, mode="indeterminate")
-progress.grid(row=3, column=1, pady=10)
+progress.grid(row=4, column=1, pady=10)
 
 root.mainloop()

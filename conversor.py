@@ -68,22 +68,21 @@ def convert_csv_to_xls(csv_file, xls_file):
 
 # Dictionary for conversion functions
 conversion_functions = {
-    "PDF para DOCX": convert_pdf_to_docx,
-    "DOCX para PDF": convert_docx_to_pdf,
-    "DOCX para TXT": convert_docx_to_txt,
-    "TXT para DOCX": convert_txt_to_docx,
-    "XLS para CSV": convert_xls_to_csv,
-    "CSV para XLS": convert_csv_to_xls,
+    "PDF para DOCX": (convert_pdf_to_docx, ".docx"),
+    "DOCX para PDF": (convert_docx_to_pdf, ".pdf"),
+    "DOCX para TXT": (convert_docx_to_txt, ".txt"),
+    "TXT para DOCX": (convert_txt_to_docx, ".docx"),
+    "XLS para CSV": (convert_xls_to_csv, ".csv"),
+    "CSV para XLS": (convert_csv_to_xls, ".xls"),
 }
 
 # Perform conversion with threading
 def perform_conversion():
     input_file = input_file_path.get()
-    output_file = output_file_path.get()
     conversion_type = conversion_type_var.get()
 
-    if not input_file or not output_file:
-        messagebox.showerror("Erro", "Por favor, selecione os arquivos de entrada e saída.")
+    if not input_file:
+        messagebox.showerror("Erro", "Por favor, selecione o arquivo de entrada.")
         return
 
     if not os.path.exists(input_file):
@@ -91,11 +90,16 @@ def perform_conversion():
         return
 
     try:
-        conversion_function = conversion_functions.get(conversion_type)
+        conversion_function, output_extension = conversion_functions.get(conversion_type, (None, None))
         if conversion_function:
+            # Generate output file name
+            base_name, _ = os.path.splitext(input_file)
+            output_file = base_name + output_extension
+
+            # Perform conversion
             conversion_function(input_file, output_file)
             logging.info(f"Converted {input_file} to {output_file} ({conversion_type})")
-            messagebox.showinfo("Sucesso", "Arquivo convertido com sucesso!")
+            messagebox.showinfo("Sucesso", f"Arquivo convertido com sucesso! Salvo como: {output_file}")
         else:
             messagebox.showerror("Erro", "Tipo de conversão inválido.")
     except Exception as e:
@@ -112,20 +116,11 @@ def select_input_file():
     )
     input_file_path.set(file_path)
 
-def select_output_file():
-    file_path = filedialog.asksaveasfilename(
-        title="Salvar como",
-        defaultextension=".*",
-        filetypes=[("Todos os arquivos", "*.*"), ("PDF Files", "*.pdf"), ("DOCX Files", "*.docx"), ("TXT Files", "*.txt"), ("XLS Files", "*.xls"), ("CSV Files", "*.csv")]
-    )
-    output_file_path.set(file_path)
-
 # GUI Configuration
 root = tk.Tk()
 root.title("Conversor de Arquivos")
 
 input_file_path = tk.StringVar()
-output_file_path = tk.StringVar()
 conversion_type_var = tk.StringVar()
 
 # Layout
@@ -133,19 +128,15 @@ tk.Label(root, text="Arquivo de Entrada:").grid(row=0, column=0, padx=10, pady=1
 tk.Entry(root, textvariable=input_file_path, width=50).grid(row=0, column=1, padx=10, pady=10)
 tk.Button(root, text="Selecionar", command=select_input_file).grid(row=0, column=2, padx=10, pady=10)
 
-tk.Label(root, text="Arquivo de Saída:").grid(row=1, column=0, padx=10, pady=10)
-tk.Entry(root, textvariable=output_file_path, width=50).grid(row=1, column=1, padx=10, pady=10)
-tk.Button(root, text="Selecionar", command=select_output_file).grid(row=1, column=2, padx=10, pady=10)
-
-tk.Label(root, text="Tipo de Conversão:").grid(row=2, column=0, padx=10, pady=10)
+tk.Label(root, text="Tipo de Conversão:").grid(row=1, column=0, padx=10, pady=10)
 conversion_dropdown = ttk.Combobox(root, textvariable=conversion_type_var, state="readonly")
 conversion_dropdown['values'] = list(conversion_functions.keys())
-conversion_dropdown.grid(row=2, column=1, padx=10, pady=10)
+conversion_dropdown.grid(row=1, column=1, padx=10, pady=10)
 
-tk.Button(root, text="Converter", command=perform_conversion_threaded).grid(row=3, column=1, pady=20)
+tk.Button(root, text="Converter", command=perform_conversion_threaded).grid(row=2, column=1, pady=20)
 
 # Progress bar
 progress = ttk.Progressbar(root, orient="horizontal", length=300, mode="indeterminate")
-progress.grid(row=4, column=1, pady=10)
+progress.grid(row=3, column=1, pady=10)
 
 root.mainloop()
